@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Issue / Return - Library Management System{% endblock %}
+
+{% block content %}
+<div class="issue-return-page">
+    <header class="page-header">
+        <h1>Issue / Return</h1>
+        <p class="subtitle">Issue books to students or record returns.</p>
+    </header>
+
+    <!-- Issue book form (Add to Cart style) -->
+    <section class="issue-section card-section">
+        <h2>Issue a Book</h2>
+        <form method="post" action="{{ url_for('issue_return') }}" class="issue-form">
+            <input type="hidden" name="action" value="issue">
+            <div class="form-row">
+                <label>
+                    <span>Book</span>
+                    <select name="book_id" required class="form-select">
+                        <option value="">-- Select Book --</option>
+                        {% for b in available_books %}
+                            <option value="{{ b.book_id }}">{{ b.title }} by {{ b.author }} ({{ b.quantity }} left)</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Student</span>
+                    <select name="student_id" required class="form-select">
+                        <option value="">-- Select Student --</option>
+                        {% for s in students %}
+                            <option value="{{ s.student_id }}">{{ s.name }} ({{ s.class }})</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <button type="submit" class="btn btn-primary btn-issue">Issue Book</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Recent issue/return records -->
+    <section class="records-section">
+        <h2>Recent Issue / Return Records</h2>
+        {% if records %}
+        <div class="records-table-wrap">
+            <table class="records-table">
+                <thead>
+                    <tr>
+                        <th>Record ID</th>
+                        <th>Book</th>
+                        <th>Student</th>
+                        <th>Issue Date</th>
+                        <th>Return Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in records %}
+                    <tr class="{% if not r.return_date %}not-returned{% endif %}">
+                        <td>{{ r.record_id }}</td>
+                        <td>{{ r.book_title or 'N/A' }}</td>
+                        <td>{{ r.student_name or 'N/A' }}</td>
+                        <td>{{ r.issue_date }}</td>
+                        <td>{{ r.return_date or '—' }}</td>
+                        <td>
+                            {% if not r.return_date %}
+                            <form method="post" action="{{ url_for('issue_return') }}" class="inline-form">
+                                <input type="hidden" name="action" value="return">
+                                <input type="hidden" name="record_id" value="{{ r.record_id }}">
+                                <button type="submit" class="btn btn-small btn-return">Return</button>
+                            </form>
+                            {% else %}
+                            <span class="returned-label">Returned</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="no-results">No issue/return records yet.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

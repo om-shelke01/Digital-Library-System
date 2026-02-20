@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Books - Library Management System{% endblock %}
+
+{% block content %}
+<div class="books-page">
+    <!-- Header with total count -->
+    <header class="page-header page-header-flex">
+        <div>
+            <h1>Books</h1>
+            <p class="total-count">Total books in library: <strong>{{ total_books_count }}</strong></p>
+        </div>
+        <a href="{{ url_for('add_book_page') }}" class="btn btn-primary">+ Add Book</a>
+    </header>
+
+    <!-- Search and filters -->
+    <form class="search-filters" method="get" action="{{ url_for('books') }}">
+        <input type="hidden" name="page" value="1">
+        <div class="search-box">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search by title or author..." class="search-input">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+        <div class="filters">
+            <label>
+                <span>Genre:</span>
+                <select name="genre" class="filter-select">
+                    <option value="">All Genres</option>
+                    {% for g in genres %}
+                        <option value="{{ g }}" {% if selected_genre == g %}selected{% endif %}>{{ g }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>Availability:</span>
+                <select name="availability" class="filter-select">
+                    <option value="">All</option>
+                    <option value="available" {% if selected_availability == 'available' %}selected{% endif %}>In Stock</option>
+                    <option value="unavailable" {% if selected_availability == 'unavailable' %}selected{% endif %}>Out of Stock</option>
+                </select>
+            </label>
+            <button type="submit" class="btn btn-secondary">Apply</button>
+        </div>
+    </form>
+
+    <!-- Books grid (Amazon-style) -->
+    {% if books %}
+    <div class="books-grid">
+        {% for book in books %}
+        <article class="book-card {% if not book.available %}book-card-unavailable{% endif %}">
+            <a href="{{ url_for('issue_return') }}?book_id={{ book.book_id }}" class="book-card-link">
+                <div class="book-cover-wrap">
+                    <img
+                        src="{{ book.cover_image_url or 'https://via.placeholder.com/200x280/1a1a2e/eee?text=No+Cover' }}"
+                        alt="Cover: {{ book.title }}"
+                        class="book-cover"
+                        onerror="this.src='https://via.placeholder.com/200x280/1a1a2e/eee?text=No+Cover'"
+                    >
+                    {% if not book.available %}
+                        <span class="badge unavailable-badge">Out of Stock</span>
+                    {% else %}
+                        <span class="badge availability-badge">{{ book.availability_text }}</span>
+                    {% endif %}
+                </div>
+                <div class="book-info">
+                    <h3 class="book-title">{{ book.title }}</h3>
+                    <p class="book-author">by {{ book.author }}</p>
+                    <p class="book-genre">{{ book.genre }}</p>
+                    <p class="book-availability {% if not book.available %}text-muted{% endif %}">
+                        {{ book.availability_text }} {% if book.available %}({{ book.quantity }} left){% endif %}
+                    </p>
+                    <span class="btn btn-card">Issue / View</span>
+                </div>
+            </a>
+            <div class="book-card-actions">
+                <a href="{{ url_for('restock_book', book_id=book.book_id) }}" class="btn btn-restock" title="Update quantity / Restock">Restock</a>
+                <form method="post" action="{{ url_for('remove_book_route', book_id=book.book_id) }}" class="book-card-remove" onsubmit="return confirm('Remove this book from the library? This cannot be undone.');">
+                    <button type="submit" class="btn btn-remove" title="Remove book">Remove</button>
+                </form>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <nav class="pagination">
+        {% if page > 1 %}
+            <a href="{{ url_for('books', page=page-1, search=search, genre=selected_genre, availability=selected_availability) }}" class="pagination-link">Previous</a>
+        {% endif %}
+        <span class="pagination-info">Page {{ page }} of {{ total_pages }}</span>
+        {% if page < total_pages %}
+            <a href="{{ url_for('books', page=page+1, search=search, genre=selected_genre, availability=selected_availability) }}" class="pagination-link">Next</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <p class="no-results">No books found. Try adjusting your search or filters.</p>
+    {% endif %}
+</div>
+{% endblock %}

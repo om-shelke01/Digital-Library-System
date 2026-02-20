@@ -1,0 +1,668 @@
+/* ============================================
+   Library Management System - Main Stylesheet
+   Amazon-style product grid, responsive layout
+   ============================================ */
+
+/* ---------- CSS Variables ---------- */
+:root {
+    --color-bg: #eaeded;
+    --color-card: #ffffff;
+    --color-primary: #232f3e;
+    --color-accent: #ff9900;
+    --color-accent-hover: #e88b00;
+    --color-text: #0f1111;
+    --color-text-muted: #565959;
+    --color-border: #ddd;
+    --color-success: #067d62;
+    --color-error: #b12704;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.1);
+    --shadow-hover: 0 4px 14px rgba(0,0,0,0.15);
+    --radius: 8px;
+    --nav-height: 56px;
+}
+
+/* ---------- Reset & Base ---------- */
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---------- Navigation Bar ---------- */
+.navbar {
+    background: var(--color-primary);
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-md);
+}
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    height: var(--nav-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.nav-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+}
+.nav-menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0.5rem;
+}
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    transition: background 0.2s;
+}
+.nav-link:hover {
+    background: rgba(255,255,255,0.1);
+}
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+.nav-toggle span {
+    width: 22px;
+    height: 2px;
+    background: #fff;
+    margin: 2px 0;
+}
+
+/* ---------- Main Content ---------- */
+.main-content {
+    flex: 1;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+/* ---------- Flash Messages ---------- */
+.flash-messages {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0.5rem 1.5rem;
+}
+.flash {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 0.5rem;
+}
+.flash-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.flash-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ---------- Page Header ---------- */
+.page-header {
+    margin-bottom: 1.5rem;
+}
+.page-header h1 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.75rem;
+    color: var(--color-primary);
+}
+.page-header .subtitle,
+.page-header .total-count {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+.page-header-flex {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+/* ---------- Search & Filters ---------- */
+.search-filters {
+    background: var(--color-card);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+}
+.search-box {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+.search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+}
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+}
+.filters label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.filters .filter-select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+    display: inline-block;
+    padding: 0.6rem 1.25rem;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+}
+.btn:active {
+    transform: scale(0.98);
+}
+.btn-primary {
+    background: var(--color-accent);
+    color: #fff;
+}
+.btn-primary:hover {
+    background: var(--color-accent-hover);
+}
+.btn-secondary {
+    background: var(--color-primary);
+    color: #fff;
+}
+.btn-secondary:hover {
+    background: #1a2530;
+}
+.btn-card {
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    background: var(--color-primary);
+    color: #fff;
+    border-radius: var(--radius);
+}
+.btn-small {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.85rem;
+}
+.btn-return {
+    background: var(--color-success);
+    color: #fff;
+}
+.btn-return:hover {
+    background: #056b54;
+}
+
+/* ---------- Books Grid (Amazon-style) ---------- */
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+}
+@media (max-width: 1100px) {
+    .books-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 768px) {
+    .books-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+@media (max-width: 480px) {
+    .books-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.book-card {
+    position: relative;
+    background: var(--color-card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.book-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0 1rem 1rem;
+    margin-top: -0.25rem;
+}
+.book-card-actions .btn-restock {
+    flex: 1;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    text-align: center;
+    text-decoration: none;
+    background: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.book-card-actions .btn-restock:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
+.book-card-remove {
+    flex: 1;
+}
+.book-card-remove .btn-remove {
+    width: 100%;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.book-card-remove .btn-remove:hover {
+    background: #f8d7da;
+    color: var(--color-error);
+    border-color: #f5c6cb;
+}
+.book-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+}
+.book-card-unavailable {
+    opacity: 0.85;
+}
+.book-card-unavailable:hover {
+    transform: none;
+}
+.book-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+}
+.book-cover-wrap {
+    position: relative;
+    padding-top: 140%; /* 5:7 aspect ratio */
+    background: #f0f0f0;
+    overflow: hidden;
+}
+.book-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.availability-badge {
+    background: var(--color-success);
+    color: #fff;
+}
+.unavailable-badge {
+    background: var(--color-error);
+    color: #fff;
+}
+.book-info {
+    padding: 1rem;
+}
+.book-title {
+    margin: 0 0 0.35rem 0;
+    font-size: 1rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.book-author {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+.book-genre {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+.book-availability {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.text-muted {
+    color: var(--color-text-muted);
+}
+
+/* ---------- Pagination ---------- */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+.pagination-link {
+    padding: 0.5rem 1rem;
+    background: var(--color-card);
+    color: var(--color-primary);
+    text-decoration: none;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    font-weight: 600;
+}
+.pagination-link:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
+.pagination-info {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+
+/* ---------- Students Page ---------- */
+.students-table-wrap {
+    background: var(--color-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+}
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.students-table th,
+.students-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+.students-table th {
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 600;
+}
+.students-table tr:hover {
+    background: #f8f9fa;
+}
+.students-table a {
+    color: #0066c0;
+    text-decoration: none;
+}
+.students-table a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Issue / Return Page ---------- */
+.issue-section,
+.records-section {
+    background: var(--color-card);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+}
+.issue-section h2,
+.records-section h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    color: var(--color-primary);
+}
+.issue-form .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+.issue-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 200px;
+}
+.issue-form .form-select {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+}
+.btn-issue {
+    align-self: flex-end;
+}
+.records-table-wrap {
+    overflow-x: auto;
+}
+.records-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.records-table th,
+.records-table td {
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+.records-table th {
+    background: #f0f0f0;
+    font-weight: 600;
+}
+.records-table tr.not-returned {
+    background: #fff8e6;
+}
+.records-table .inline-form {
+    display: inline;
+}
+.returned-label {
+    color: var(--color-success);
+    font-size: 0.9rem;
+}
+
+/* ---------- Add Book form ---------- */
+.add-book-page .form-section {
+    max-width: 500px;
+}
+.add-book-form .form-group {
+    margin-bottom: 1rem;
+}
+.add-book-form .form-group label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+.add-book-form .form-input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+}
+.add-book-form .required {
+    color: var(--color-error);
+}
+.add-book-form .optional {
+    font-weight: normal;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+.add-book-form .form-static {
+    margin: 0;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    color: var(--color-text);
+}
+.add-book-form .form-hint {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+.add-book-form .form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+/* ---------- No results ---------- */
+.no-results {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: 2rem;
+    background: var(--color-card);
+    border-radius: var(--radius);
+}
+
+/* ---------- Footer ---------- */
+.footer {
+    margin-top: auto;
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 2rem 1rem 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+.footer-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+}
+.footer-context {
+    margin: 0 0 1.25rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #94a3b8;
+}
+.footer-credits {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.footer-credit-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    align-items: center;
+}
+.footer-credit-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #a0aec0;
+}
+.footer-credit-name {
+    font-weight: 500;
+    color: #e2e8f0;
+}
+.footer-credit-divider {
+    color: rgba(255, 255, 255, 0.25);
+    font-weight: 300;
+    user-select: none;
+}
+.footer-copyright {
+    font-size: 0.85rem;
+    color: #a0aec0;
+}
+@media (max-width: 480px) {
+    .footer {
+        padding: 1.5rem 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    .footer-context {
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+    .footer-credits {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+    }
+    .footer-credit-divider {
+        display: none;
+    }
+}
+
+/* ---------- Mobile: show hamburger, hide nav links by default ---------- */
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: flex;
+    }
+    .nav-menu {
+        position: absolute;
+        top: var(--nav-height);
+        left: 0;
+        right: 0;
+        background: var(--color-primary);
+        flex-direction: column;
+        padding: 1rem;
+        display: none;
+        box-shadow: var(--shadow-md);
+    }
+    .nav-menu.active {
+        display: flex;
+    }
+    .nav-link {
+        display: block;
+        padding: 0.75rem;
+    }
+}

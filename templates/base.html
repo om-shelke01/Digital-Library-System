@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Library Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('home') }}" class="nav-logo">Library</a>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('home') }}" class="nav-link">Home</a></li>
+                <li><a href="{{ url_for('books') }}" class="nav-link">Books</a></li>
+                <li><a href="{{ url_for('students') }}" class="nav-link">Students</a></li>
+                <li><a href="{{ url_for('issue_return') }}" class="nav-link">Issue/Return</a></li>
+                <li><a href="{{ url_for('add_book_page') }}" class="nav-link">Add Book</a></li>
+                <li><a href="{{ url_for('add_student_page') }}" class="nav-link">Add Student</a></li>
+            </ul>
+            <!-- Mobile hamburger (shown on small screens) -->
+            <button class="nav-toggle" aria-label="Toggle menu" onclick="document.querySelector('.nav-menu').classList.toggle('active')">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <p class="footer-context">
+                Second Year BCS student at Jijamata College of Science and Arts, Bhende. Developing a professional-grade software application for academic curriculum.
+            </p>
+            <div class="footer-credits">
+                <div class="footer-credit-item">
+                    <span class="footer-credit-label">Lead Developer &amp; Designer</span>
+                    <span class="footer-credit-name">Om Shelke</span>
+                </div>
+                <span class="footer-credit-divider" aria-hidden="true">|</span>
+                <div class="footer-credit-item">
+                    <span class="footer-credit-label">Project Guide</span>
+                    <span class="footer-credit-name">Prof. Gholap Sir</span>
+                </div>
+            </div>
+            <div class="footer-copyright">
+                &copy; 2026 All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
