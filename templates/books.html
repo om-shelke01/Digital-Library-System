@@ -21,12 +21,17 @@
         </div>
         <div class="filters">
             <label>
-                <span>Genre:</span>
+                <!-- Using existing "genre" filter as "Class" (no backend changes) -->
+                <span>Class:</span>
                 <select name="genre" class="filter-select">
-                    <option value="">All Genres</option>
-                    {% for g in genres %}
-                        <option value="{{ g }}" {% if selected_genre == g %}selected{% endif %}>{{ g }}</option>
-                    {% endfor %}
+                    <option value="">All Classes</option>
+                    <option value="FY Sem 1" {% if selected_genre == 'FY Sem 1' %}selected{% endif %}>FY Sem 1</option>
+                    <option value="FY Sem 2" {% if selected_genre == 'FY Sem 2' %}selected{% endif %}>FY Sem 2</option>
+                    <option value="SY Sem 3" {% if selected_genre == 'SY Sem 3' %}selected{% endif %}>SY Sem 3</option>
+                    <option value="SY Sem 4" {% if selected_genre == 'SY Sem 4' %}selected{% endif %}>SY Sem 4</option>
+                    <option value="TY Sem 5" {% if selected_genre == 'TY Sem 5' %}selected{% endif %}>TY Sem 5</option>
+                    <option value="TY Sem 6" {% if selected_genre == 'TY Sem 6' %}selected{% endif %}>TY Sem 6</option>
+                    <option value="MCS" {% if selected_genre == 'MCS' %}selected{% endif %}>MCS</option>
                 </select>
             </label>
             <label>
@@ -41,7 +46,7 @@
         </div>
     </form>
 
-    <!-- Books grid (Amazon-style) -->
+    <!-- Books grid (responsive, Amazon-style card layout) -->
     {% if books %}
     <div class="books-grid">
         {% for book in books %}
@@ -63,13 +68,14 @@
                 <div class="book-info">
                     <h3 class="book-title">{{ book.title }}</h3>
                     <p class="book-author">by {{ book.author }}</p>
-                    <p class="book-genre">{{ book.genre }}</p>
+                    <p class="book-genre">Class: {{ book.genre }}</p>
                     <p class="book-availability {% if not book.available %}text-muted{% endif %}">
                         {{ book.availability_text }} {% if book.available %}({{ book.quantity }} left){% endif %}
                     </p>
                     <span class="btn btn-card">Issue / View</span>
                 </div>
             </a>
+            <!-- Dedicated action row so restock/remove buttons stay visible and easy to tap -->
             <div class="book-card-actions">
                 <a href="{{ url_for('restock_book', book_id=book.book_id) }}" class="btn btn-restock" title="Update quantity / Restock">Restock</a>
                 <form method="post" action="{{ url_for('remove_book_route', book_id=book.book_id) }}" class="book-card-remove" onsubmit="return confirm('Remove this book from the library? This cannot be undone.');">

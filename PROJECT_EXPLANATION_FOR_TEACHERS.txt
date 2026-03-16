@@ -30,10 +30,10 @@ shown on a website.
 
 A. BOOKS PAGE (HOME)
    - Shows all books in a grid (like an online store).
-   - Each book shows: cover image, title, author, genre, and whether it 
+   - Each book shows: cover image, title, author, class (semester), and whether it 
      is "In Stock" or "Out of Stock".
    - Search: User can search by book title or author name.
-   - Filters: User can filter by Genre (e.g. Fiction, Science) and by 
+   - Filters: User can filter by Class (FY/SY/TY/MCS semesters) and by 
      Availability (In Stock / Out of Stock).
    - Pagination: If there are many books, they are shown page by page 
      (e.g. 12 books per page) with Previous/Next buttons.
@@ -41,7 +41,7 @@ A. BOOKS PAGE (HOME)
 
 B. ADD BOOK
    - Librarian or admin can add a new book.
-   - Form asks for: Title, Author, Genre, Quantity (how many copies), and 
+   - Form asks for: Title, Author, Class (semester), Quantity (how many copies), and 
      optional Cover Image URL.
    - After submitting, the book appears in the Books list.
 
@@ -134,7 +134,7 @@ I. NAVIGATION & LAYOUT
 | Feature          | What it does                                      |
 |------------------|---------------------------------------------------|
 | Books page       | View all books, search, filter, pagination        |
-| Add Book         | Add new book (title, author, genre, quantity)     |
+| Add Book         | Add new book (title, author, class, quantity)     |
 | Restock          | Update book quantity (in/out of stock)           |
 | Remove Book      | Delete a book from library                       |
 | Students page    | View all registered students                      |

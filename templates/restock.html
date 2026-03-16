@@ -8,6 +8,7 @@
         <p class="subtitle">{{ book.title }} by {{ book.author }}</p>
     </header>
 
+    <!-- Compact card layout keeps restock controls clear and centered -->
     <section class="form-section card-section">
         <form method="post" action="{{ url_for('restock_book', book_id=book.book_id) }}" class="add-book-form">
             <div class="form-group">

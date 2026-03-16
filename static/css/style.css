@@ -189,11 +189,14 @@ body {
 
 /* ---------- Buttons ---------- */
 .btn {
-    display: inline-block;
-    padding: 0.6rem 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* Consistent hit area for all buttons */
+    padding: 0.55rem 1.1rem;
     border: none;
     border-radius: var(--radius);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
@@ -263,18 +266,26 @@ body {
     position: relative;
     background: var(--color-card);
     border-radius: var(--radius);
-    overflow: hidden;
+    /* Allow inner action buttons to be fully visible on all screens */
+    overflow: visible;
+    /* Stack content and action bar vertically so buttons stay attached to the card */
+    display: flex;
+    flex-direction: column;
     box-shadow: var(--shadow-sm);
     transition: box-shadow 0.2s, transform 0.2s;
 }
 .book-card-actions {
     display: flex;
+    /* Allow buttons to wrap instead of overflowing when space is tight */
+    flex-wrap: wrap;
     gap: 0.5rem;
-    padding: 0 1rem 1rem;
-    margin-top: -0.25rem;
+    /* Add clear separation from content and consistent spacing */
+    padding: 0.75rem 1rem 1rem;
+    margin-top: 0;
+    border-top: 1px solid var(--color-border);
 }
 .book-card-actions .btn-restock {
-    flex: 1;
+    flex: 1 1 0;
     padding: 0.4rem 0.75rem;
     font-size: 0.85rem;
     text-align: center;
@@ -291,7 +302,7 @@ body {
     color: #fff;
 }
 .book-card-remove {
-    flex: 1;
+    flex: 1 1 0;
 }
 .book-card-remove .btn-remove {
     width: 100%;
@@ -320,10 +331,12 @@ body {
     transform: none;
 }
 .book-card-link {
+    /* Fill available vertical space; action bar sits at the bottom of the card */
     display: block;
     text-decoration: none;
     color: inherit;
     height: 100%;
+    flex: 1 1 auto;
 }
 .book-cover-wrap {
     position: relative;
@@ -357,7 +370,8 @@ body {
     color: #fff;
 }
 .book-info {
-    padding: 1rem;
+    /* Slightly larger padding for better readability in cards */
+    padding: 1rem 1rem 0.75rem;
 }
 .book-title {
     margin: 0 0 0.35rem 0;
@@ -557,6 +571,17 @@ body {
     margin-top: 1.5rem;
 }
 
+/* Make form action buttons stack nicely on small screens */
+@media (max-width: 576px) {
+    .add-book-form .form-actions {
+        flex-wrap: wrap;
+    }
+    .add-book-form .form-actions .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
 /* ---------- No results ---------- */
 .no-results {
     text-align: center;
@@ -640,6 +665,46 @@ body {
     .footer-credit-divider {
         display: none;
     }
+}
+
+/* Improve card and layout behaviour on narrow screens */
+@media (max-width: 768px) {
+    .book-card-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .book-card-actions .btn-restock,
+    .book-card-remove .btn-remove {
+        width: 100%;
+    }
+    .main-content {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 0.75rem;
+    }
+}
+
+/* Generic card container styling reused on form pages */
+.card-section {
+    background: var(--color-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 1.25rem 1.5rem;
+}
+
+/* Ensure consistent vertical spacing on top-level page sections */
+.books-page,
+.students-page,
+.issue-return-page,
+.add-book-page,
+.add-student-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
 }
 
 /* ---------- Mobile: show hamburger, hide nav links by default ---------- */

@@ -1,114 +1,108 @@
-# Library Management System
+# Academic Digital Library System (Flask + MySQL)
 
-A **college mini project** that displays books in an **Amazon-style product grid**. Built with **HTML, CSS, Python (Flask), and MySQL**.
+A **college mini project** for managing a small academic library. The system allows you to **view books**, **register students**, and **issue/return books** with stock tracking.
 
-## Features
+## Project overview
 
-- **Frontend**
-  - Grid layout for books (3–4 per row, responsive)
-  - Book cover, title, author, genre, and availability
-  - Hover effects on book cards
-  - Responsive design (mobile and desktop)
-  - Navigation: Home, Books, Students, Issue/Return
+- **Books module**: responsive book grid, search (title/author), filter by class/semester and availability, pagination, total count
+- **Inventory actions**: restock/update quantity, remove book
+- **Students module**: list and add students (name, class, email)
+- **Issue/Return module**: issue a book to a student, record returns, and update stock automatically
 
-- **Backend (Flask)**
-  - Fetches book data from MySQL
-  - Dynamic book grid with search (title/author)
-  - Filters by genre and availability
-  - Pagination for large lists
+## Tech stack
 
-- **Database (MySQL)**
-  - **books**: Book ID, Title, Author, Genre, Quantity, Cover Image URL
-  - **students**: Student ID, Name, Class, Email
-  - **issue_return**: Record ID, Book ID, Student ID, Issue Date, Return Date
+- **Frontend**: HTML5, CSS3 (grid + flex, responsive)
+- **Backend**: Python, Flask
+- **Database**: MySQL
 
-- **Extra**
-  - Unavailable books highlighted (badge + muted style)
-  - Total books count on Books page
-  - Pagination
-  - “Issue Book” and “Return” actions on Issue/Return page
-
-## Project Structure
+## Folder structure
 
 ```
-ECOM-WEBSITE/
-├── app.py              # Flask application and routes
-├── config.py           # Database and app configuration
-├── database.py         # MySQL connection and queries
-├── requirements.txt    # Python dependencies
+Digital-Library-System/
+├── app.py                           # Flask routes + page rendering
+├── config.py                        # App/database configuration (env defaults)
+├── database.py                      # MySQL connection + query helpers
+├── requirements.txt                 # Python dependencies
 ├── README.md
+├── PROJECT_EXPLANATION_FOR_TEACHERS.txt
 ├── database/
-│   ├── schema.sql      # Create tables
-│   └── seed_data.sql   # Sample books, students, records
+│   ├── schema.sql                   # Create DB + tables + indexes
+│   └── seed_data.sql                # Sample books/students/records
 ├── templates/
-│   ├── base.html       # Layout and navigation
-│   ├── books.html      # Books grid page
-│   ├── students.html   # Students list
+│   ├── base.html
+│   ├── books.html
+│   ├── restock.html
+│   ├── students.html
+│   ├── add_book.html
+│   ├── add_student.html
 │   └── issue_return.html
 └── static/
     └── css/
-        └── style.css   # All styles
+        └── style.css
 ```
 
-## Setup
+## Installation
 
-### 1. MySQL
+### 1) Database setup (MySQL)
 
-- Install MySQL and create the database and tables:
+Run the schema and seed scripts:
 
 ```bash
 mysql -u root -p < database/schema.sql
 mysql -u root -p library_db < database/seed_data.sql
 ```
 
-Or run the contents of `database/schema.sql` and `database/seed_data.sql` in MySQL Workbench or phpMyAdmin.
+You can also run `database/schema.sql` and `database/seed_data.sql` in MySQL Workbench / phpMyAdmin.
 
-### 2. Python
+### 2) Python setup
 
-- Create a virtual environment (optional but recommended):
+Create and activate a virtual environment (recommended):
 
 ```bash
 python -m venv venv
-venv\Scripts\activate    # Windows
-# source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate
 ```
 
-- Install dependencies:
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configuration
+### 3) Configuration (optional)
 
-- Edit `config.py` and set your MySQL credentials:
+You can configure MySQL and Flask settings using environment variables:
 
-  - `MYSQL_HOST` (default: `localhost`)
-  - `MYSQL_USER` (default: `root`)
-  - `MYSQL_PASSWORD` (default: `''`)
-  - `MYSQL_DATABASE` (default: `library_db`)
+- `MYSQL_HOST`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `MYSQL_DATABASE`
+- `SECRET_KEY`
 
-### 4. Run the app
+If you do not set them, defaults from `config.py` are used.
+
+## How to run
 
 ```bash
 python app.py
 ```
 
-- Open **http://127.0.0.1:5000** in your browser.
+Then open `http://127.0.0.1:5000` in your browser.
 
-## Usage
+## Screenshots (placeholders)
 
-- **Home / Books**: View all books in a grid. Use the search box (title/author), genre and availability filters, and pagination.
-- **Students**: View registered students.
-- **Issue/Return**: Issue a book to a student (dropdowns for book and student), and mark returns in the table.
+- Home / Books page: `docs/screenshots/books.png`
+- Students page: `docs/screenshots/students.png`
+- Issue/Return page: `docs/screenshots/issue_return.png`
+- Restock page: `docs/screenshots/restock.png`
 
-## Tech Stack
+## Author
 
-- **Frontend**: HTML5, CSS3 (grid, flexbox, responsive)
-- **Backend**: Python 3, Flask
-- **Database**: MySQL
-- **Optional**: Use environment variables for `MYSQL_*` and `SECRET_KEY` in production.
+- **Om Shelke** (Lead Developer & Designer)  
+- **Project Guide**: Prof. Gholap Sir  
+- **College**: Jijamata College of Science and Arts, Bhende
 
----
+## Academic disclaimer
 
-*Library Management System — College Mini Project*
+This project is created **for educational purposes** as a college mini project.  
+It is **not intended for production use** without security hardening (e.g., secrets management, input validation, and proper logging).
