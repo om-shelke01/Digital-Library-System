@@ -1,33 +1,57 @@
+```md
 # Academic Digital Library System (Flask + MySQL)
 
-A **college mini project** for managing a small academic library. The system allows you to **view books**, **register students**, and **issue/return books** with stock tracking.
+A simple and user-friendly **Digital Library Management System** built using **Flask and MySQL**.
 
-## Project overview
+This project is developed as a **college mini project** to manage a small academic library efficiently.  
+It allows librarians to manage books, register students, and issue or return books, while automatically maintaining book stock and availability.
 
-- **Books module**: responsive book grid, search (title/author), filter by class/semester and availability, pagination, total count
-- **Inventory actions**: restock/update quantity, remove book
-- **Students module**: list and add students (name, class, email)
-- **Issue/Return module**: issue a book to a student, record returns, and update stock automatically
+---
 
-## Tech stack
+## Key Features
 
-- **Frontend**: HTML5, CSS3 (grid + flex, responsive)
-- **Backend**: Python, Flask
-- **Database**: MySQL
+### Books Management
+- View books in a responsive grid layout
+- Search books by title or author
+- Filter by class / semester and availability
+- Pagination with total book count
+- Add, update, restock, or remove books
 
-## Folder structure
+### Students Management
+- Register new students
+- View student list
+- Store student details (name, class, email)
+
+### Issue & Return System
+- Issue books to registered students
+- Return issued books
+- Automatic stock update on issue/return
+- Prevent issuing books when stock is unavailable
+
+---
+
+## Tech Stack
+
+- Frontend: HTML5, CSS3 (Grid and Flexbox, Responsive UI)
+- Backend: Python, Flask
+- Database: MySQL
+
+---
+
+## Project Structure
 
 ```
+
 Digital-Library-System/
-├── app.py                           # Flask routes + page rendering
-├── config.py                        # App/database configuration (env defaults)
-├── database.py                      # MySQL connection + query helpers
-├── requirements.txt                 # Python dependencies
+├── app.py
+├── config.py
+├── database.py
+├── requirements.txt
 ├── README.md
 ├── PROJECT_EXPLANATION_FOR_TEACHERS.txt
 ├── database/
-│   ├── schema.sql                   # Create DB + tables + indexes
-│   └── seed_data.sql                # Sample books/students/records
+│   ├── schema.sql
+│   └── seed_data.sql
 ├── templates/
 │   ├── base.html
 │   ├── books.html
@@ -37,72 +61,137 @@ Digital-Library-System/
 │   ├── add_student.html
 │   └── issue_return.html
 └── static/
-    └── css/
-        └── style.css
+└── css/
+└── style.css
+
 ```
 
-## Installation
+---
 
-### 1) Database setup (MySQL)
+## Installation and Setup
 
-Run the schema and seed scripts:
+### Database Setup (MySQL)
 
-```bash
+Run the following commands:
+
+```
+
 mysql -u root -p < database/schema.sql
 mysql -u root -p library_db < database/seed_data.sql
+
 ```
 
-You can also run `database/schema.sql` and `database/seed_data.sql` in MySQL Workbench / phpMyAdmin.
+You can also execute these files using MySQL Workbench or phpMyAdmin.
 
-### 2) Python setup
+---
 
-Create and activate a virtual environment (recommended):
+### Python Setup
 
-```bash
+Create and activate a virtual environment:
+
+```
+
 python -m venv venv
 venv\Scripts\activate
+
 ```
 
 Install dependencies:
 
-```bash
+```
+
 pip install -r requirements.txt
+
 ```
 
-### 3) Configuration (optional)
+---
 
-You can configure MySQL and Flask settings using environment variables:
+### Configuration (Optional)
 
-- `MYSQL_HOST`
-- `MYSQL_USER`
-- `MYSQL_PASSWORD`
-- `MYSQL_DATABASE`
-- `SECRET_KEY`
+You can configure the application using environment variables:
 
-If you do not set them, defaults from `config.py` are used.
+- MYSQL_HOST  
+- MYSQL_USER  
+- MYSQL_PASSWORD  
+- MYSQL_DATABASE  
+- SECRET_KEY  
 
-## How to run
+If these are not set, default values from config.py will be used.
 
-```bash
+---
+
+## Running the Application
+
+```
+
 python app.py
+
 ```
 
-Then open `http://127.0.0.1:5000` in your browser.
+Open the application in a browser at:
 
-## Screenshots (placeholders)
+```
 
-- Home / Books page: `docs/screenshots/books.png`
-- Students page: `docs/screenshots/students.png`
-- Issue/Return page: `docs/screenshots/issue_return.png`
-- Restock page: `docs/screenshots/restock.png`
+[http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-## Author
+```
 
-- **Om Shelke** (Lead Developer & Designer)  
-- **Project Guide**: Prof. Gholap Sir  
-- **College**: Jijamata College of Science and Arts, Bhende
+---
 
-## Academic disclaimer
+## Screenshots
 
-This project is created **for educational purposes** as a college mini project.  
-It is **not intended for production use** without security hardening (e.g., secrets management, input validation, and proper logging).
+Create the following folder structure:
+
+```
+
+docs/
+└── screenshots/
+├── books.png
+├── students.png
+├── add_book.png
+├── issue_return.png
+└── restock.png
+
+```
+
+Add screenshots in the README using:
+
+```
+
+![Books Page](docs/screenshots/books.png)
+![Students Page](docs/screenshots/students.png)
+![Add Book Page](docs/screenshots/add_book.png)
+![Issue Return Page](docs/screenshots/issue_return.png)
+![Restock Page](docs/screenshots/add_students.png)
+
+```
+
+---
+
+## Author and Academic Details
+
+- Student Name: Om Shelke  
+- Project Guide: Prof. Gholap Sir  
+- College: Jijamata College of Science and Arts, Bhende  
+- Course: B.Sc / BCA / Computer Science (Mini Project)
+
+---
+
+## Academic Disclaimer
+
+This project is created for educational purposes as a college mini project.  
+It is not intended for production use without proper security improvements such as authentication, input validation, and secure configuration.
+
+---
+
+## Future Enhancements
+
+- Admin or Librarian authentication
+- Book reservation system
+- Fine calculation for late returns
+- Export reports (CSV or PDF)
+- UI enhancement using Bootstrap or Tailwind CSS
+```
+
+This version contains no emojis and no conversational filler text.
+You can copy and paste it directly into `README.md`.
