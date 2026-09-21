@@ -1,15 +1,13 @@
 # config.py - Database and app configuration
-# Change these values according to your MySQL setup
+# Change these values according to your MongoDB setup
 
 import os
 
 # ----------------------------
-# MySQL Database Configuration
+# MongoDB Database Configuration
 # ----------------------------
-MYSQL_HOST = os.environ.get('MYSQL_HOST', 'localhost')          # MySQL host
-MYSQL_USER = os.environ.get('MYSQL_USER', 'root')               # MySQL username
-MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', 'DbRoot!Secure#2026')  # MySQL password
-MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE', 'library_db') # Database name
+MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://127.0.0.1:27017')
+MONGO_DB_NAME = os.environ.get('MONGO_DB_NAME', 'library_db')
 
 # ----------------------------
 # Flask Configuration

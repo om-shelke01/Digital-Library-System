@@ -7,6 +7,7 @@ import database as db
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+db.init_db()
 
 
 # ---------- Home & Books (Amazon-style grid) ----------

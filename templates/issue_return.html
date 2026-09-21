@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Issue / Return - Library Management System{% endblock %}
+{% block title %}Issue / Return - MyLibrary{% endblock %}
 
 {% block content %}
 <div class="issue-return-page">
     <header class="page-header">
+        <p class="eyebrow">Circulation</p>
         <h1>Issue / Return</h1>
         <p class="subtitle">Issue books to students or record returns.</p>
     </header>
 
-    <!-- Issue book form (Add to Cart style) -->
     <section class="issue-section card-section">
         <h2>Issue a Book</h2>
         <form method="post" action="{{ url_for('issue_return') }}" class="issue-form">
@@ -19,7 +19,7 @@
                     <select name="book_id" required class="form-select">
                         <option value="">-- Select Book --</option>
                         {% for b in available_books %}
-                            <option value="{{ b.book_id }}">{{ b.title }} by {{ b.author }} ({{ b.quantity }} left)</option>
+                            <option value="{{ b.book_id }}" {% if request.args.get('book_id')|string == b.book_id|string %}selected{% endif %}>{{ b.title }} by {{ b.author }} ({{ b.quantity }} left)</option>
                         {% endfor %}
                     </select>
                 </label>
@@ -37,7 +37,6 @@
         </form>
     </section>
 
-    <!-- Recent issue/return records -->
     <section class="records-section">
         <h2>Recent Issue / Return Records</h2>
         {% if records %}

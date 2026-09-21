@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Add Student - Library Management System{% endblock %}
+{% block title %}Add Student - MyLibrary{% endblock %}
 
 {% block content %}
 <div class="add-student-page">
     <header class="page-header">
+        <p class="eyebrow">Members</p>
         <h1>Add Student</h1>
         <p class="subtitle">Register a new student in the library system.</p>
     </header>
 
-    <!-- Reuse shared card section styling for visual consistency -->
     <section class="form-section card-section">
         <form method="post" action="{{ url_for('add_student_page') }}" class="add-book-form">
             <div class="form-group">

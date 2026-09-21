@@ -1,28 +1,112 @@
-# database.py - MySQL connection and query helpers
+# database.py - MongoDB connection and query helpers
 # Handles all database operations for the Library Management System
 
-import mysql.connector
-from mysql.connector import Error
-from config import MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
+import re
+from datetime import date, datetime
+
+from pymongo import ASCENDING, DESCENDING, MongoClient, ReturnDocument
+from pymongo.errors import PyMongoError
+
+from config import MONGO_DB_NAME, MONGO_URI
+
+_client = None
+
+
+def get_client():
+    """Create and return a shared MongoDB client."""
+    global _client
+    if _client is None:
+        _client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    return _client
+
+
+def get_db():
+    """Return the library_db database."""
+    return get_client()[MONGO_DB_NAME]
 
 
 def get_connection():
     """
-    Create and return a MySQL database connection.
-    Returns None if connection fails.
+    Check MongoDB connectivity.
+    Returns the database object, or None if the connection fails.
     """
     try:
-        connection = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="DbRoot!Secure#2026",
-            database="library_db"
-        )
-        if connection.is_connected():
-            return connection
-    except Error as e:
-        print(f"Error connecting to MySQL: {e}")
-    return None
+        client = get_client()
+        client.admin.command('ping')
+        return get_db()
+    except PyMongoError as e:
+        print(f"Error connecting to MongoDB: {e}")
+        return None
+
+
+def init_db():
+    """Create indexes used for search, filters, and unique integer IDs."""
+    db = get_connection()
+    if db is None:
+        return
+    db.books.create_index('book_id', unique=True)
+    db.books.create_index('title')
+    db.books.create_index('author')
+    db.books.create_index('genre')
+    db.students.create_index('student_id', unique=True)
+    db.issue_return.create_index('record_id', unique=True)
+    db.issue_return.create_index('book_id')
+    db.issue_return.create_index('student_id')
+
+
+def next_id(sequence_name):
+    """Return the next integer ID for books, students, or issue records."""
+    db = get_db()
+    doc = db.counters.find_one_and_update(
+        {'_id': sequence_name},
+        {'$inc': {'seq': 1}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER,
+    )
+    return int(doc['seq'])
+
+
+def _today():
+    now = datetime.now()
+    return datetime(now.year, now.month, now.day)
+
+
+def _as_date(value):
+    """Convert MongoDB datetimes to date objects so templates match MySQL output."""
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    return value
+
+
+def _book_view(doc):
+    if not doc:
+        return None
+    book = {
+        'book_id': doc.get('book_id'),
+        'title': doc.get('title'),
+        'author': doc.get('author'),
+        'genre': doc.get('genre'),
+        'quantity': int(doc.get('quantity') or 0),
+        'cover_image_url': doc.get('cover_image_url'),
+    }
+    book['available'] = book['quantity'] > 0
+    book['availability_text'] = 'In Stock' if book['available'] else 'Out of Stock'
+    return book
+
+
+def _student_view(doc):
+    if not doc:
+        return None
+    return {
+        'student_id': doc.get('student_id'),
+        'name': doc.get('name'),
+        'class': doc.get('class'),
+        'email': doc.get('email'),
+    }
 
 
 def get_books(search=None, genre=None, availability=None, limit=12, offset=0):
@@ -30,142 +114,94 @@ def get_books(search=None, genre=None, availability=None, limit=12, offset=0):
     Fetch books from database with optional search and filters.
     Returns list of book dicts and total count.
     """
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return [], 0
 
     try:
-        cursor = conn.cursor(dictionary=True)
-
-        # Build query with optional filters
-        where_clauses = []
-        params = []
+        query = {}
+        clauses = []
 
         if search:
-            where_clauses.append("(title LIKE %s OR author LIKE %s)")
-            params.extend([f"%{search}%", f"%{search}%"])
+            safe = re.escape(search)
+            clauses.append({
+                '$or': [
+                    {'title': {'$regex': safe, '$options': 'i'}},
+                    {'author': {'$regex': safe, '$options': 'i'}},
+                ]
+            })
         if genre:
-            where_clauses.append("genre = %s")
-            params.append(genre)
-        if availability is not None:
-            if availability == 'available':
-                where_clauses.append("quantity > 0")
-            elif availability == 'unavailable':
-                where_clauses.append("quantity <= 0")
+            clauses.append({'genre': genre})
+        if availability == 'available':
+            clauses.append({'quantity': {'$gt': 0}})
+        elif availability == 'unavailable':
+            clauses.append({'quantity': {'$lte': 0}})
 
-        where_sql = " AND ".join(where_clauses) if where_clauses else "1=1"
+        if len(clauses) == 1:
+            query = clauses[0]
+        elif clauses:
+            query = {'$and': clauses}
 
-        # Get total count for pagination
-        count_sql = f"SELECT COUNT(*) as total FROM books WHERE {where_sql}"
-        cursor.execute(count_sql, params)
-        total = cursor.fetchone()['total']
-
-        # Get books with limit and offset
-        params.extend([limit, offset])
-        books_sql = f"""
-            SELECT book_id, title, author, genre, quantity, cover_image_url
-            FROM books
-            WHERE {where_sql}
-            ORDER BY title
-            LIMIT %s OFFSET %s
-        """
-        cursor.execute(books_sql, params)
-        books = cursor.fetchall()
-
-        # Add availability flag for frontend
-        for book in books:
-            book['available'] = book['quantity'] > 0
-            book['availability_text'] = 'In Stock' if book['available'] else 'Out of Stock'
-
-        cursor.close()
-        conn.close()
+        total = db.books.count_documents(query)
+        cursor = (
+            db.books.find(query)
+            .sort('title', ASCENDING)
+            .skip(int(offset))
+            .limit(int(limit))
+        )
+        books = [_book_view(doc) for doc in cursor]
         return books, total
-
-    except Error as e:
+    except PyMongoError as e:
         print(f"Error fetching books: {e}")
-        if conn:
-            conn.close()
         return [], 0
 
 
 def get_book_by_id(book_id):
     """Fetch a single book by ID. Returns None if not found."""
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return None
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(
-            "SELECT book_id, title, author, genre, quantity, cover_image_url FROM books WHERE book_id = %s",
-            (book_id,)
-        )
-        book = cursor.fetchone()
-        if book:
-            book['available'] = book['quantity'] > 0
-            book['availability_text'] = 'In Stock' if book['available'] else 'Out of Stock'
-        cursor.close()
-        conn.close()
-        return book
-    except Error as e:
+        doc = db.books.find_one({'book_id': int(book_id)})
+        return _book_view(doc)
+    except (PyMongoError, TypeError, ValueError) as e:
         print(f"Error fetching book: {e}")
-        if conn:
-            conn.close()
         return None
 
 
 def get_genres():
     """Get list of distinct genres for filter dropdown."""
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return []
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT DISTINCT genre FROM books ORDER BY genre")
-        rows = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return [r['genre'] for r in rows]
-    except Error as e:
+        return sorted(g for g in db.books.distinct('genre') if g)
+    except PyMongoError as e:
         print(f"Error fetching genres: {e}")
-        if conn:
-            conn.close()
         return []
 
 
 def get_total_books_count():
     """Return total number of books in the database."""
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return 0
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT COUNT(*) as total FROM books")
-        total = cursor.fetchone()['total']
-        cursor.close()
-        conn.close()
-        return total
-    except Error as e:
-        if conn:
-            conn.close()
+        return db.books.count_documents({})
+    except PyMongoError:
         return 0
 
 
 def get_students():
     """Fetch all students for the Students page."""
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return []
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT student_id, name, class, email FROM students ORDER BY name")
-        students = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return students
-    except Error as e:
+        cursor = db.students.find({}).sort('name', ASCENDING)
+        return [_student_view(doc) for doc in cursor]
+    except PyMongoError as e:
         print(f"Error fetching students: {e}")
-        if conn:
-            conn.close()
         return []
 
 
@@ -174,51 +210,65 @@ def add_student(name, class_name, email):
     Add a new student to the library.
     Returns (success: bool, message: str). class_name is the student's class (e.g. CS-A).
     """
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return False, "Database connection failed."
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(
-            "INSERT INTO students (name, class, email) VALUES (%s, %s, %s)",
-            (name.strip(), class_name.strip(), email.strip())
-        )
-        conn.commit()
-        new_id = cursor.lastrowid
-        cursor.close()
-        conn.close()
+        new_id = next_id('student_id')
+        db.students.insert_one({
+            'student_id': new_id,
+            'name': name.strip(),
+            'class': class_name.strip(),
+            'email': email.strip(),
+            'created_at': datetime.now(),
+        })
         return True, f"Student added successfully. (ID: {new_id})"
-    except Error as e:
-        if conn:
-            conn.rollback()
-            conn.close()
+    except PyMongoError as e:
         return False, str(e)
 
 
 def get_issue_return_records(limit=50):
     """Fetch recent issue/return records with book and student details."""
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return []
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT r.record_id, r.book_id, r.student_id, r.issue_date, r.return_date,
-                   b.title AS book_title, s.name AS student_name
-            FROM issue_return r
-            LEFT JOIN books b ON r.book_id = b.book_id
-            LEFT JOIN students s ON r.student_id = s.student_id
-            ORDER BY r.issue_date DESC
-            LIMIT %s
-        """, (limit,))
-        records = cursor.fetchall()
-        cursor.close()
-        conn.close()
+        pipeline = [
+            {'$sort': {'issue_date': DESCENDING, 'record_id': DESCENDING}},
+            {'$limit': int(limit)},
+            {
+                '$lookup': {
+                    'from': 'books',
+                    'localField': 'book_id',
+                    'foreignField': 'book_id',
+                    'as': 'book',
+                }
+            },
+            {
+                '$lookup': {
+                    'from': 'students',
+                    'localField': 'student_id',
+                    'foreignField': 'student_id',
+                    'as': 'student',
+                }
+            },
+        ]
+        records = []
+        for doc in db.issue_return.aggregate(pipeline):
+            book = doc.get('book') or []
+            student = doc.get('student') or []
+            records.append({
+                'record_id': doc.get('record_id'),
+                'book_id': doc.get('book_id'),
+                'student_id': doc.get('student_id'),
+                'issue_date': _as_date(doc.get('issue_date')),
+                'return_date': _as_date(doc.get('return_date')),
+                'book_title': book[0].get('title') if book else None,
+                'student_name': student[0].get('name') if student else None,
+            })
         return records
-    except Error as e:
+    except PyMongoError as e:
         print(f"Error fetching issue/return records: {e}")
-        if conn:
-            conn.close()
         return []
 
 
@@ -227,32 +277,41 @@ def issue_book(book_id, student_id):
     Record a book issue: insert into issue_return and decrement book quantity.
     Returns (success: bool, message: str).
     """
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return False, "Database connection failed."
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT quantity FROM books WHERE book_id = %s", (book_id,))
-        row = cursor.fetchone()
-        if not row:
-            conn.close()
-            return False, "Book not found."
-        if row['quantity'] <= 0:
-            conn.close()
-            return False, "Book is out of stock."
-        cursor.execute(
-            "INSERT INTO issue_return (book_id, student_id, issue_date, return_date) VALUES (%s, %s, CURDATE(), NULL)",
-            (book_id, student_id)
+        book_id = int(book_id)
+        student_id = int(student_id)
+        student = db.students.find_one({'student_id': student_id})
+        if not student:
+            return False, "Student not found."
+
+        updated = db.books.find_one_and_update(
+            {'book_id': book_id, 'quantity': {'$gt': 0}},
+            {'$inc': {'quantity': -1}},
+            return_document=ReturnDocument.AFTER,
         )
-        cursor.execute("UPDATE books SET quantity = quantity - 1 WHERE book_id = %s", (book_id,))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        if not updated:
+            book = db.books.find_one({'book_id': book_id})
+            if not book:
+                return False, "Book not found."
+            return False, "Book is out of stock."
+
+        try:
+            db.issue_return.insert_one({
+                'record_id': next_id('record_id'),
+                'book_id': book_id,
+                'student_id': student_id,
+                'issue_date': _today(),
+                'return_date': None,
+                'created_at': datetime.now(),
+            })
+        except PyMongoError as e:
+            db.books.update_one({'book_id': book_id}, {'$inc': {'quantity': 1}})
+            return False, str(e)
         return True, "Book issued successfully."
-    except Error as e:
-        if conn:
-            conn.rollback()
-            conn.close()
+    except (PyMongoError, TypeError, ValueError) as e:
         return False, str(e)
 
 
@@ -261,24 +320,22 @@ def add_book(title, author, genre, quantity=1, cover_image_url=None):
     Add a new book to the library.
     Returns (success: bool, message: str). On success, message can include the new book_id.
     """
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return False, "Database connection failed."
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(
-            "INSERT INTO books (title, author, genre, quantity, cover_image_url) VALUES (%s, %s, %s, %s, %s)",
-            (title.strip(), author.strip(), genre.strip(), max(0, int(quantity)), cover_image_url.strip() if cover_image_url else None)
-        )
-        conn.commit()
-        new_id = cursor.lastrowid
-        cursor.close()
-        conn.close()
+        new_id = next_id('book_id')
+        db.books.insert_one({
+            'book_id': new_id,
+            'title': title.strip(),
+            'author': author.strip(),
+            'genre': genre.strip(),
+            'quantity': max(0, int(quantity)),
+            'cover_image_url': cover_image_url.strip() if cover_image_url else None,
+            'created_at': datetime.now(),
+        })
         return True, f"Book added successfully. (ID: {new_id})"
-    except Error as e:
-        if conn:
-            conn.rollback()
-            conn.close()
+    except (PyMongoError, TypeError, ValueError) as e:
         return False, str(e)
 
 
@@ -287,26 +344,18 @@ def update_book_quantity(book_id, quantity):
     Update a book's quantity (restock). Use this to set in-stock or out-of-stock.
     Returns (success: bool, message: str).
     """
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return False, "Database connection failed."
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT book_id, title FROM books WHERE book_id = %s", (book_id,))
-        row = cursor.fetchone()
+        book_id = int(book_id)
+        row = db.books.find_one({'book_id': book_id})
         if not row:
-            conn.close()
             return False, "Book not found."
         qty = max(0, int(quantity))
-        cursor.execute("UPDATE books SET quantity = %s WHERE book_id = %s", (qty, book_id))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        db.books.update_one({'book_id': book_id}, {'$set': {'quantity': qty}})
         return True, f"Quantity updated for \"{row['title']}\". Now {'in stock' if qty > 0 else 'out of stock'}."
-    except Error as e:
-        if conn:
-            conn.rollback()
-            conn.close()
+    except (PyMongoError, TypeError, ValueError) as e:
         return False, str(e)
 
 
@@ -315,25 +364,18 @@ def remove_book(book_id):
     Remove a book from the library. Deletes the book and any related issue/return records (CASCADE).
     Returns (success: bool, message: str).
     """
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return False, "Database connection failed."
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT book_id, title FROM books WHERE book_id = %s", (book_id,))
-        row = cursor.fetchone()
+        book_id = int(book_id)
+        row = db.books.find_one({'book_id': book_id})
         if not row:
-            conn.close()
             return False, "Book not found."
-        cursor.execute("DELETE FROM books WHERE book_id = %s", (book_id,))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        db.issue_return.delete_many({'book_id': book_id})
+        db.books.delete_one({'book_id': book_id})
         return True, f"Book removed: \"{row['title']}\"."
-    except Error as e:
-        if conn:
-            conn.rollback()
-            conn.close()
+    except (PyMongoError, TypeError, ValueError) as e:
         return False, str(e)
 
 
@@ -342,27 +384,22 @@ def return_book(record_id):
     Record a book return: set return_date and increment book quantity.
     Returns (success: bool, message: str).
     """
-    conn = get_connection()
-    if not conn:
+    db = get_connection()
+    if db is None:
         return False, "Database connection failed."
     try:
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT book_id, return_date FROM issue_return WHERE record_id = %s", (record_id,))
-        row = cursor.fetchone()
+        record_id = int(record_id)
+        row = db.issue_return.find_one_and_update(
+            {'record_id': record_id, 'return_date': None},
+            {'$set': {'return_date': _today()}},
+            return_document=ReturnDocument.BEFORE,
+        )
         if not row:
-            conn.close()
-            return False, "Record not found."
-        if row['return_date']:
-            conn.close()
+            existing = db.issue_return.find_one({'record_id': record_id})
+            if not existing:
+                return False, "Record not found."
             return False, "Book already returned."
-        cursor.execute("UPDATE issue_return SET return_date = CURDATE() WHERE record_id = %s", (record_id,))
-        cursor.execute("UPDATE books SET quantity = quantity + 1 WHERE book_id = %s", (row['book_id'],))
-        conn.commit()
-        cursor.close()
-        conn.close()
+        db.books.update_one({'book_id': row['book_id']}, {'$inc': {'quantity': 1}})
         return True, "Book returned successfully."
-    except Error as e:
-        if conn:
-            conn.rollback()
-            conn.close()
+    except (PyMongoError, TypeError, ValueError) as e:
         return False, str(e)

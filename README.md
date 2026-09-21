@@ -1,28 +1,28 @@
-```md
-# Academic Digital Library System (Flask + MySQL)
+# MyLibrary (Flask + MongoDB)
 
-A simple and user-friendly **Digital Library Management System** built using **Flask and MySQL**.
+**MyLibrary** is a college library management website built with **Flask and MongoDB**.
 
-This project is developed as a **college mini project** to manage a small academic library efficiently.  
-It allows librarians to manage books, register students, and issue or return books, while automatically maintaining book stock and availability.
+The site name is **MyLibrary**. The navbar and footer use an **OM** logo mark (the initials in the gold square next to the name), with the same size, color, and position as before.
+
+This project is a **college mini project** for managing a small academic library. It lets you manage books, register students, and issue or return books, while keeping stock up to date.
 
 ---
 
 ## Key Features
 
 ### Books Management
-- View books in a responsive grid layout
+- View books in a responsive catalog grid
 - Search books by title or author
-- Filter by class / semester and availability
+- Filter by genre and availability
 - Pagination with total book count
-- Add, update, restock, or remove books
+- Add, restock, or remove books
 
 ### Students Management
 - Register new students
 - View student list
 - Store student details (name, class, email)
 
-### Issue & Return System
+### Issue and Return
 - Issue books to registered students
 - Return issued books
 - Automatic stock update on issue/return
@@ -30,18 +30,25 @@ It allows librarians to manage books, register students, and issue or return boo
 
 ---
 
+## Branding
+
+- Project name: **MyLibrary**
+- Logo mark: **OM** (navbar and footer)
+- Logo style is defined in `static/css/style.css` (class `.nav-mark`)
+
+---
+
 ## Tech Stack
 
-- Frontend: HTML5, CSS3 (Grid and Flexbox, Responsive UI)
+- Frontend: HTML5, CSS3 (Grid and Flexbox, responsive UI), JavaScript
 - Backend: Python, Flask
-- Database: MySQL
+- Database: MongoDB (PyMongo)
 
 ---
 
 ## Project Structure
 
 ```
-
 Digital-Library-System/
 ├── app.py
 ├── config.py
@@ -51,7 +58,8 @@ Digital-Library-System/
 ├── PROJECT_EXPLANATION_FOR_TEACHERS.txt
 ├── database/
 │   ├── schema.sql
-│   └── seed_data.sql
+│   ├── seed_data.sql
+│   └── seed_mongodb.py
 ├── templates/
 │   ├── base.html
 │   ├── books.html
@@ -61,27 +69,28 @@ Digital-Library-System/
 │   ├── add_student.html
 │   └── issue_return.html
 └── static/
-└── css/
-└── style.css
-
+    ├── css/
+    │   └── style.css
+    └── js/
+        └── main.js
 ```
 
 ---
 
 ## Installation and Setup
 
-### Database Setup (MySQL)
+### Database Setup (MongoDB)
 
-Run the following commands:
-
-```
-
-mysql -u root -p < database/schema.sql
-mysql -u root -p library_db < database/seed_data.sql
+1. Start MongoDB locally (default: `mongodb://127.0.0.1:27017`).
+2. Install Python dependencies, then seed sample data:
 
 ```
+python database/seed_mongodb.py
+```
 
-You can also execute these files using MySQL Workbench or phpMyAdmin.
+This creates the `library_db` database with `books`, `students`, and `issue_return` collections.
+
+The original MySQL files (`database/schema.sql` and `database/seed_data.sql`) are kept for reference and are not used by the running app.
 
 ---
 
@@ -90,18 +99,14 @@ You can also execute these files using MySQL Workbench or phpMyAdmin.
 Create and activate a virtual environment:
 
 ```
-
 python -m venv venv
 venv\Scripts\activate
-
 ```
 
 Install dependencies:
 
 ```
-
 pip install -r requirements.txt
-
 ```
 
 ---
@@ -110,70 +115,31 @@ pip install -r requirements.txt
 
 You can configure the application using environment variables:
 
-- MYSQL_HOST  
-- MYSQL_USER  
-- MYSQL_PASSWORD  
-- MYSQL_DATABASE  
-- SECRET_KEY  
+- MONGO_URI
+- MONGO_DB_NAME
+- SECRET_KEY
 
-If these are not set, default values from config.py will be used.
+If these are not set, default values from `config.py` will be used.
 
 ---
 
 ## Running the Application
 
 ```
-
 python app.py
-
 ```
 
 Open the application in a browser at:
 
-```
-
 [http://127.0.0.1:5000](http://127.0.0.1:5000)
-
-```
-
----
-
-## Screenshots
-
-Create the following folder structure:
-
-```
-
-docs/
-└── screenshots/
-├── books.png
-├── students.png
-├── add_book.png
-├── issue_return.png
-└── restock.png
-
-```
-
-Add screenshots in the README using:
-
-```
-
-![Books Page](docs/screenshots/books.png)
-![Students Page](docs/screenshots/students.png)
-![Add Book Page](docs/screenshots/add_book.png)
-![Issue Return Page](docs/screenshots/issue_return.png)
-![Restock Page](docs/screenshots/add_students.png)
-
-```
 
 ---
 
 ## Author and Academic Details
 
-- Student Name: Om Shelke  
-- Project Guide: Prof. Gholap Sir  
-- College: Jijamata College of Science and Arts, Bhende  
-- Course: B.Sc / BCA / Computer Science (Mini Project)
+- Student Name: Om Shelke
+- College: Jijamata College of Science and Arts, Bhende
+- Course: Second Year BCS (Mini Project)
 
 ---
 
@@ -186,12 +152,7 @@ It is not intended for production use without proper security improvements such 
 
 ## Future Enhancements
 
-- Admin or Librarian authentication
+- Admin or librarian authentication
 - Book reservation system
 - Fine calculation for late returns
 - Export reports (CSV or PDF)
-- UI enhancement using Bootstrap or Tailwind CSS
-```
-
-This version contains no emojis and no conversational filler text.
-You can copy and paste it directly into `README.md`.

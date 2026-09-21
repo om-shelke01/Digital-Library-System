@@ -1,37 +1,45 @@
 {% extends "base.html" %}
-{% block title %}Books - Library Management System{% endblock %}
+{% block title %}Catalog - MyLibrary{% endblock %}
 
 {% block content %}
 <div class="books-page">
-    <!-- Header with total count -->
-    <header class="page-header page-header-flex">
-        <div>
-            <h1>Books</h1>
-            <p class="total-count">Total books in library: <strong>{{ total_books_count }}</strong></p>
+    <section class="hero">
+        <div class="hero-copy">
+            <p class="eyebrow">College Academic Library</p>
+            <h1>Find, issue, and restock books in one place</h1>
+            <p class="total-count">Browse the collection, filter by genre, and keep stock up to date.</p>
         </div>
-        <a href="{{ url_for('add_book_page') }}" class="btn btn-primary">+ Add Book</a>
-    </header>
+        <div class="hero-stats">
+            <article class="stat-card">
+                <span class="stat-value">{{ total_books_count }}</span>
+                <span class="stat-label">Titles in library</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-value">{{ total }}</span>
+                <span class="stat-label">Matching this search</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-value">{{ page }}/{{ total_pages }}</span>
+                <span class="stat-label">Current page</span>
+            </article>
+        </div>
+        <a href="{{ url_for('add_book_page') }}" class="btn btn-primary hero-cta">+ Add Book</a>
+    </section>
 
-    <!-- Search and filters -->
     <form class="search-filters" method="get" action="{{ url_for('books') }}">
         <input type="hidden" name="page" value="1">
         <div class="search-box">
-            <input type="text" name="search" value="{{ search }}" placeholder="Search by title or author..." class="search-input">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search by title or author..." class="search-input" aria-label="Search books">
             <button type="submit" class="btn btn-primary">Search</button>
         </div>
         <div class="filters">
             <label>
-                <!-- Using existing "genre" filter as "Class" (no backend changes) -->
-                <span>Class:</span>
+                <span>Genre:</span>
                 <select name="genre" class="filter-select">
-                    <option value="">All Classes</option>
-                    <option value="FY Sem 1" {% if selected_genre == 'FY Sem 1' %}selected{% endif %}>FY Sem 1</option>
-                    <option value="FY Sem 2" {% if selected_genre == 'FY Sem 2' %}selected{% endif %}>FY Sem 2</option>
-                    <option value="SY Sem 3" {% if selected_genre == 'SY Sem 3' %}selected{% endif %}>SY Sem 3</option>
-                    <option value="SY Sem 4" {% if selected_genre == 'SY Sem 4' %}selected{% endif %}>SY Sem 4</option>
-                    <option value="TY Sem 5" {% if selected_genre == 'TY Sem 5' %}selected{% endif %}>TY Sem 5</option>
-                    <option value="TY Sem 6" {% if selected_genre == 'TY Sem 6' %}selected{% endif %}>TY Sem 6</option>
-                    <option value="MCS" {% if selected_genre == 'MCS' %}selected{% endif %}>MCS</option>
+                    <option value="">All genres</option>
+                    {% for g in genres %}
+                        <option value="{{ g }}" {% if selected_genre == g %}selected{% endif %}>{{ g }}</option>
+                    {% endfor %}
                 </select>
             </label>
             <label>
@@ -46,19 +54,23 @@
         </div>
     </form>
 
-    <!-- Books grid (responsive, Amazon-style card layout) -->
     {% if books %}
     <div class="books-grid">
         {% for book in books %}
         <article class="book-card {% if not book.available %}book-card-unavailable{% endif %}">
             <a href="{{ url_for('issue_return') }}?book_id={{ book.book_id }}" class="book-card-link">
                 <div class="book-cover-wrap">
+                    {% if book.cover_image_url %}
                     <img
-                        src="{{ book.cover_image_url or 'https://via.placeholder.com/200x280/1a1a2e/eee?text=No+Cover' }}"
+                        src="{{ book.cover_image_url }}"
                         alt="Cover: {{ book.title }}"
                         class="book-cover"
-                        onerror="this.src='https://via.placeholder.com/200x280/1a1a2e/eee?text=No+Cover'"
+                        onerror="this.style.display='none'; this.nextElementSibling.removeAttribute('hidden');"
                     >
+                    <div class="book-cover-fallback" hidden>{{ book.title[:1] }}</div>
+                    {% else %}
+                    <div class="book-cover-fallback">{{ book.title[:1] }}</div>
+                    {% endif %}
                     {% if not book.available %}
                         <span class="badge unavailable-badge">Out of Stock</span>
                     {% else %}
@@ -68,14 +80,13 @@
                 <div class="book-info">
                     <h3 class="book-title">{{ book.title }}</h3>
                     <p class="book-author">by {{ book.author }}</p>
-                    <p class="book-genre">Class: {{ book.genre }}</p>
+                    <p class="book-genre">{{ book.genre }}</p>
                     <p class="book-availability {% if not book.available %}text-muted{% endif %}">
                         {{ book.availability_text }} {% if book.available %}({{ book.quantity }} left){% endif %}
                     </p>
                     <span class="btn btn-card">Issue / View</span>
                 </div>
             </a>
-            <!-- Dedicated action row so restock/remove buttons stay visible and easy to tap -->
             <div class="book-card-actions">
                 <a href="{{ url_for('restock_book', book_id=book.book_id) }}" class="btn btn-restock" title="Update quantity / Restock">Restock</a>
                 <form method="post" action="{{ url_for('remove_book_route', book_id=book.book_id) }}" class="book-card-remove" onsubmit="return confirm('Remove this book from the library? This cannot be undone.');">
@@ -86,9 +97,8 @@
         {% endfor %}
     </div>
 
-    <!-- Pagination -->
     {% if total_pages > 1 %}
-    <nav class="pagination">
+    <nav class="pagination" aria-label="Book pages">
         {% if page > 1 %}
             <a href="{{ url_for('books', page=page-1, search=search, genre=selected_genre, availability=selected_availability) }}" class="pagination-link">Previous</a>
         {% endif %}

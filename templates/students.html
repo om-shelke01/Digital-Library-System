@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Students - Library Management System{% endblock %}
+{% block title %}Students - MyLibrary{% endblock %}
 
 {% block content %}
 <div class="students-page">
     <header class="page-header page-header-flex">
         <div>
+            <p class="eyebrow">Members</p>
             <h1>Students</h1>
             <p class="subtitle">Registered students in the library system.</p>
         </div>
@@ -25,8 +26,13 @@
             <tbody>
                 {% for s in students %}
                 <tr>
-                    <td>{{ s.student_id }}</td>
-                    <td>{{ s.name }}</td>
+                    <td><span class="id-chip">#{{ s.student_id }}</span></td>
+                    <td>
+                        <div class="student-cell">
+                            <span class="avatar" aria-hidden="true">{{ s.name[:1] }}</span>
+                            <strong>{{ s.name }}</strong>
+                        </div>
+                    </td>
                     <td>{{ s.class }}</td>
                     <td><a href="mailto:{{ s.email }}">{{ s.email }}</a></td>
                 </tr>

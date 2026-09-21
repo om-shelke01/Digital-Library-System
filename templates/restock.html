@@ -4,12 +4,15 @@
 {% block content %}
 <div class="add-book-page">
     <header class="page-header">
+        <p class="eyebrow">Inventory</p>
         <h1>Restock / Update quantity</h1>
         <p class="subtitle">{{ book.title }} by {{ book.author }}</p>
     </header>
 
-    <!-- Compact card layout keeps restock controls clear and centered -->
-    <section class="form-section card-section">
+    <section class="form-section card-section restock-card">
+        {% if book.cover_image_url %}
+        <img src="{{ book.cover_image_url }}" alt="" class="restock-cover">
+        {% endif %}
         <form method="post" action="{{ url_for('restock_book', book_id=book.book_id) }}" class="add-book-form">
             <div class="form-group">
                 <label>Current quantity</label>
